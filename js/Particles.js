@@ -1,8 +1,9 @@
 function ParticleMesh(x, y, z, scene) {
-    let particle = new THREE.SphereGeometry(3, 12, 12);
-    let material = new THREE.MeshBasicMaterial({color: 0x000000});
-    this.mesh = new TREE.Mesh(particle, material);
+    let particle = new THREE.SphereGeometry(10, 12, 12);
+    let material = new THREE.MeshBasicMaterial({color: 0xffffff});
+    this.mesh = new THREE.Mesh(particle, material);
     this.velocity = new THREE.Vector3(0, 0, 0);
+
 
     this.mesh.x = x;
     this.mesh.y = y;
@@ -26,7 +27,6 @@ function generateParticles(num, border, scene) {
             )
         );
     }
-
     return particles;
 }
 
@@ -34,7 +34,10 @@ function generateParticles(num, border, scene) {
 function applyMagneticField(circuit, particles) {
     let size = particles.length;
     for (let i = 0; i < size; ++i) {
-        particles[i].velocity += new TREE.Vector3(0.1, 0.1, 0.1);
+        change_vel = new THREE.Vector3(1, 1, 1);
+        particles[i].velocity.x += change_vel.x;
+        particles[i].velocity.y += change_vel.y;
+        particles[i].velocity.y += change_vel.z;
     }
 }
 
@@ -43,8 +46,9 @@ function moveParticles(circuit, time, particles) {
 
     let size = particles.length;
     for (let i = 0; i < size; ++i) {
-        particles[i].x += particles[i].velocity.x * time;
-        particles[i].y += particles[i].velocity.y * time;
-        particles[i].z += particles[i].velocity.z * time;
+        particles[i].mesh.x += particles[i].velocity.x * time;
+        particles[i].mesh.y += particles[i].velocity.y * time;
+        particles[i].mesh.z += particles[i].velocity.z * time;
     }
+    console.log(particles[0].mesh.x)
 }

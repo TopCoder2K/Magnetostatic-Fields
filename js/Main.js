@@ -22,7 +22,6 @@ window.onload = function () {
     camera.position.set(0, 0, 1000);
 
 
-
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 
     let light = new THREE.AmbientLight(0xffffff);
