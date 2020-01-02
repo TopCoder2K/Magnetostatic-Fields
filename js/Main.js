@@ -7,6 +7,7 @@ window.onload = function () {
 
 
 
+
     let renderer = new THREE.WebGLRenderer({canvas: canvas});
     renderer.setClearColor(0x000000);
     window.addEventListener('resize', function () {
@@ -27,25 +28,23 @@ window.onload = function () {
     let light = new THREE.AmbientLight(0xffffff);
     scene.add(light);
 
-    /*let geometry = new THREE.SphereGeometry(200, 12, 12);
-    // THREE.FaceColors makes it possible to give each face its own colour.
-    let material = new THREE.MeshBasicMaterial({color: 0xffffff, vertexColors: THREE.FaceColors});
-    for(let i = 0; i < geometry.faces.length; ++i) {
-        geometry.faces[i].color.setRGB(Math.random(), Math.random(), Math.random());
-    }*/
     let axesHelper = new THREE.AxesHelper(500);
     scene.add(axesHelper);
 
-    CurrentLine(scene);
+
+
+
+    let circuit = new Circuit(scene, 'Current_line');
     let particles = generateParticles(50, 100, scene);
 
-
     function update() {
-        moveParticles(null, 0.001, particles);
+        moveParticles(circuit, 0.001, particles);
+        // console.log(particles[0].mesh.position.x);
     }
 
     function loop() {
         update();
+        console.log(particles[0].mesh.position.x);
 
         renderer.render(scene, camera);
         requestAnimationFrame(function () { loop(); });
