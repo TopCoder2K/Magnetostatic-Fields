@@ -3,6 +3,7 @@ function ParticleMesh(x, y, z, scene) {
     const material = new THREE.MeshBasicMaterial({color: 0xffffff});
     this.mesh = new THREE.Mesh(particle, material);
     this.time_lived = 0;
+    this.avg_distance = 0;
 
 
     this.mesh.position.x = x;
@@ -35,7 +36,32 @@ function generateParticles(num, scene) {
 
 
 
-function calcMagneticField(x, y, z, circuit) {
+function getAvgDistance(particles, j, circuit) {
+    const x = particles[j].mesh.position.x;
+    const y = particles[j].mesh.position.y;
+    const z = particles[j].mesh.position.z;
+
+    const size = circuit.wires.length;
+    for (let i = 0; i < size; ++i) {
+        const wire_x = circuit.wires[i].mesh.position.x;
+        const wire_y = circuit.wires[i].mesh.position.y;
+        const wire_z = circuit.wires[i].mesh.position.z;
+        const to_wire_center = Object.freeze(new THREE.Vector3(wire_x, wire_y, wire_z));
+        const to_point = Object.freeze(new THREE.Vector3(x, y, z));
+
+        const from_center_to_point = Object.freeze(Subtract(to_point, to_wire_center));
+        // The distance from the point to the line containing the wire.
+        const distance = crossProduct(circuit.wires[i].direction, from_center_to_point).length();
+        particles[j].avg_distance += distance;
+    }
+
+    particles[j].avg_distance /= size;
+}
+
+function calcMagneticField(particles, j, circuit) {
+    const x = particles[j].mesh.position.x;
+    const y = particles[j].mesh.position.y;
+    const z = particles[j].mesh.position.z;
     const k = Math.pow(10, -7);         // Coefficient = mu_0 / (4 * pi)
 
 
@@ -99,26 +125,23 @@ function calcVelocity(B) {
 function moveParticles(circuit, particles, step_time, scene) {
     const size = particles.length;
     for (let i = 0; i < size; ++i) {
+        const B = calcMagneticField(particles, i, circuit);
+
         // Particles increase the radius of their orbit because of discretization of the movement.
         // So, after a certain time they must die.
-        if (particles[i].time_lived > config['living_time'] + i / 10) {
+        if (particles[i].time_lived > config['living_time'] + particles[i].avg_distance / 400) {
             scene.remove(particles[i].mesh);
             particles.splice(i, 1);
             particles.push(
-                new ParticleMesh(getRandomArbitrary(-config['birth_border'], config['birth_border']),
+                new ParticleMesh(
+                    getRandomArbitrary(-config['birth_border'], config['birth_border']),
                     getRandomArbitrary(-config['birth_border'], config['birth_border']),
                     getRandomArbitrary(-config['birth_border'], config['birth_border']),
                     scene
                 )
             );
+            getAvgDistance(particles, size - 1, circuit);
         }
-
-        const B = calcMagneticField(
-            particles[i].mesh.position.x,
-            particles[i].mesh.position.y,
-            particles[i].mesh.position.z,
-            circuit
-        );
 
         const instant_velocity = calcVelocity(B);
         particles[i].mesh.position.x += instant_velocity.x * step_time;
@@ -129,6 +152,7 @@ function moveParticles(circuit, particles, step_time, scene) {
         // Testing
         // console.log(instant_velocity);
         // console.log(particles[i].mesh.position.x, particles[i].mesh.position.y, particles[i].mesh.position.z);
-        console.log(particles[i].time_lived);
+        // console.log(particles[i].time_lived);
+        // console.log(particles[0].avg_distance);
     }
 }

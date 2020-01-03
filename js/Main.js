@@ -39,6 +39,11 @@ window.onload = function () {
     let particles = generateParticles(config['number_of_particles'], scene);
     // console.log(particles);
 
+    // Average distance is used to evaluate "good" living time.
+    for (let i = 0; i < config['number_of_particles']; ++i) {
+        getAvgDistance(particles, i, circuit);
+    }
+
     function update() {
         moveParticles(circuit, particles, config['step_time'], scene);
         // console.log(particles[0].mesh.position.x);
