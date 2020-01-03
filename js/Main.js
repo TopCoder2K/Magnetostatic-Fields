@@ -34,7 +34,7 @@ window.onload = function () {
 
 
 
-    const circuit = new Circuit(scene, 'Current_line');
+    const circuit = new Circuit(scene, config['circuit_name']);
     // console.log(circuit);
     let particles = generateParticles(config['number_of_particles'], scene);
     // console.log(particles);

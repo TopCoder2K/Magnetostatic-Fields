@@ -58,7 +58,7 @@ function getAvgDistance(particles, j, circuit) {
     particles[j].avg_distance /= size;
 }
 
-function calcMagneticField(particles, j, circuit) {
+function calcMagneticFieldFromLine(particles, j, circuit) {
     const x = particles[j].mesh.position.x;
     const y = particles[j].mesh.position.y;
     const z = particles[j].mesh.position.z;
@@ -93,18 +93,6 @@ function calcMagneticField(particles, j, circuit) {
 
         // Use superposition principle.
         B.addScaledVector(cur_B_dir, cur_B_val);
-        // Testing
-        /*console.log(to_wire_center);
-        console.log(to_point);
-        console.log(from_center_to_point);
-        console.log(cur_B_dir);
-        console.log(from_end1_to_point);
-        console.log(from_end2_to_point);
-        console.log(cos1);
-        console.log(cos2);
-        console.log(distance);
-        console.log(cur_B_val);
-        console.log(B);*/
     }
 
     return B;
@@ -125,7 +113,7 @@ function calcVelocity(B) {
 function moveParticles(circuit, particles, step_time, scene) {
     const size = particles.length;
     for (let i = 0; i < size; ++i) {
-        const B = calcMagneticField(particles, i, circuit);
+        const B = calcMagneticFieldFromLine(particles, i, circuit);
 
         // Particles increase the radius of their orbit because of discretization of the movement.
         // So, after a certain time they must die.
@@ -155,4 +143,6 @@ function moveParticles(circuit, particles, step_time, scene) {
         // console.log(particles[i].time_lived);
         // console.log(particles[0].avg_distance);
     }
+    // console.log(particles[0].time_lived);
+    // console.log(particles[0].avg_distance);
 }
