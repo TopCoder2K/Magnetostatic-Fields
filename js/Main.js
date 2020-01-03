@@ -36,11 +36,11 @@ window.onload = function () {
 
     const circuit = new Circuit(scene, 'Current_line');
     // console.log(circuit);
-    let particles = generateParticles(config['number_of_particles'], config['border'], scene);
+    let particles = generateParticles(config['number_of_particles'], scene);
     // console.log(particles);
 
     function update() {
-        moveParticles(circuit, particles, config['step_time']);
+        moveParticles(circuit, particles, config['step_time'], scene);
         // console.log(particles[0].mesh.position.x);
     }
 
