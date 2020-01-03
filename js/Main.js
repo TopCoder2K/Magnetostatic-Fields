@@ -1,5 +1,5 @@
 window.onload = function () {
-    let canvas = document.getElementById('canvas');
+    const canvas = document.getElementById('canvas');
     let width = window.innerWidth;
     let height = window.innerHeight;
     canvas.setAttribute('width', width);
@@ -8,7 +8,7 @@ window.onload = function () {
 
 
 
-    let renderer = new THREE.WebGLRenderer({canvas: canvas});
+    const renderer = new THREE.WebGLRenderer({canvas: canvas});
     renderer.setClearColor(0x000000);
     window.addEventListener('resize', function () {
         width = window.innerWidth;
@@ -18,33 +18,35 @@ window.onload = function () {
         camera.updateProjectionMatrix();
     });
 
-    let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000);
     camera.position.set(0, 0, 1000);
 
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-    let light = new THREE.AmbientLight(0xffffff);
+    const light = new THREE.AmbientLight(0xffffff);
     scene.add(light);
 
-    let axesHelper = new THREE.AxesHelper(500);
+    const axesHelper = new THREE.AxesHelper(500);
     scene.add(axesHelper);
 
 
 
 
-    let circuit = new Circuit(scene, 'Current_line', config['current']);
+    const circuit = new Circuit(scene, 'Current_line');
+    // console.log(circuit);
     let particles = generateParticles(config['number_of_particles'], config['border'], scene);
+    // console.log(particles);
 
     function update() {
-        moveParticles(circuit, config['step_time'], particles);
+        moveParticles(circuit, particles, config['step_time']);
         // console.log(particles[0].mesh.position.x);
     }
 
     function loop() {
         update();
-        console.log(particles[0].mesh.position.x);
+        // console.log(particles[0].mesh.position.x);
 
         renderer.render(scene, camera);
         requestAnimationFrame(function () { loop(); });
