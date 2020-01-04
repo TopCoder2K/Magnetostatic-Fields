@@ -2,13 +2,19 @@ const config = {
     current: 1,
     mu: 1,
     step_time: 0.001,
-    number_of_particles: 500,
+    quasi_mass: Math.pow(10, -12),
+    number_of_particles: 400,
     birth_border: 200,
     living_time: 0,
-    // Supported circuits: line (balanced values: (number_of_particles) 300, (birth border) 200, (living time) 0.5),
-    // angle (300, 200, 0.5), square (300, 200, 0.5), cube (300, 200, 0),
-    // ring (300, 100, 0.25), inductor (300, 200, 0),
-    // four_inductors (300, 200, 0, but the construction is bad),
-    // double_inductor (300, 200, 0).
-    circuit_name: 'line'
+    living_delimeter: 800,
+    // Supported circuits:
+    // line (balanced values: (number_of_particles) 500, (birth border) 200, (living time) 0.5, (living_delimeter) 400),
+    // angle (500, 200, 0.5, 400), square (500, 200, 0.5, 400), cube (300, 200, 0, 400),
+    // ring (400, 100, 0, 400), inductor (300, 200, 0, 800),
+    // four_inductors (500, 200, 0, 400, but the code is bad),
+    // double_inductor (300, 200, 0, 800).
+    circuit_name: 'four_inductors',
+    wire_color: 0xffa500,
+    arrow_color: 0xffff00,
+    arrow_length: 10
 };

@@ -78,11 +78,10 @@ function calcMagneticFieldFromLine(particles, j, circuit) {
 // As our particles represent magnetic field, B serves as force acting on them.
 // So, it's important to find "good mass" for the graphic representing.
 function calcVelocity(B) {
-    const quasi_mass = Math.pow(10, -12);
     let copied_B = new THREE.Vector3(0, 0, 0);
     copied_B.copy(B);
 
-    return copied_B.divideScalar(quasi_mass);
+    return copied_B.divideScalar(config['quasi_mass']);
 }
 
 // Calculates vector B at a point in space and acceleration, acting on the particle at that point.
@@ -94,7 +93,7 @@ function moveParticles(circuit, particles, step_time, scene) {
 
         // Particles increase the radius of their orbit because of discretization of the movement.
         // So, after a certain time they must die.
-        if (particles[i].time_lived > config['living_time'] + particles[i].avg_distance / 400) {
+        if (particles[i].time_lived > config['living_time'] + particles[i].avg_distance / config['living_delimeter']) {
             scene.remove(particles[i].mesh);
             particles.splice(i, 1);
             particles.push(
