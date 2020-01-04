@@ -157,6 +157,17 @@ function Circuit(scene, circuit_name) {
                 );
             }
             break;
+        case 'double_inductor':
+            for (let i = 0; i < 6; ++i) {
+                CurrentRingCircuit(this.wires, scene, 100, 30,i * 20);
+            }
+            for (let i = 0; i < 6; ++i) {
+                CurrentRingCircuit(this.wires, scene, 50, 30,i * 20);
+            }
+            this.wires.push(
+                Object.freeze(CurrentLineCircuit(new CurrentLine(scene, 100), 0, 0, 50, 90 / 180 * Math.PI, 0, 0))
+            );
+            break;
 
         default:
             alert('Unknown type of circuit');

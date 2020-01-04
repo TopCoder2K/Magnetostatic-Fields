@@ -31,6 +31,10 @@ window.onload = function () {
     const axesHelper = new THREE.AxesHelper(500);
     scene.add(axesHelper);
 
+    let gui = new dat.GUI();
+    gui.add(config, 'current').min(0.01).max(10).step(0.1);
+    gui.add(config, 'mu').min(1).max(10).step(1);
+
 
 
 
@@ -39,15 +43,12 @@ window.onload = function () {
     let particles = generateParticles(config['number_of_particles'], scene);
     // console.log(particles);
 
-    // Average distance is used to evaluate "good" living time.
-    for (let i = 0; i < config['number_of_particles']; ++i) {
-        getAvgDistance(particles, i, circuit);
-    }
-
     function update() {
         moveParticles(circuit, particles, config['step_time'], scene);
         // console.log(particles[0].mesh.position.x);
     }
+
+
 
     function loop() {
         update();

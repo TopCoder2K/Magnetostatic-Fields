@@ -3,6 +3,7 @@ function ParticleMesh(x, y, z, scene) {
     const material = new THREE.MeshBasicMaterial({color: 0xffffff});
     this.mesh = new THREE.Mesh(particle, material);
     this.time_lived = 0;
+    // Average distance is used to evaluate "good" living time.
     this.avg_distance = 0;
 
 
@@ -27,8 +28,6 @@ function generateParticles(num, scene) {
                 scene
             )
         );
-        // Testing
-        // particles.push(new ParticleMesh(100, 100, 100, scene));
     }
     return particles;
 }
@@ -36,52 +35,28 @@ function generateParticles(num, scene) {
 
 
 
-function getAvgDistance(particles, j, circuit) {
-    const x = particles[j].mesh.position.x;
-    const y = particles[j].mesh.position.y;
-    const z = particles[j].mesh.position.z;
-
-    const size = circuit.wires.length;
-    for (let i = 0; i < size; ++i) {
-        const wire_x = circuit.wires[i].mesh.position.x;
-        const wire_y = circuit.wires[i].mesh.position.y;
-        const wire_z = circuit.wires[i].mesh.position.z;
-        const to_wire_center = Object.freeze(new THREE.Vector3(wire_x, wire_y, wire_z));
-        const to_point = Object.freeze(new THREE.Vector3(x, y, z));
-
-        const from_center_to_point = Object.freeze(Subtract(to_point, to_wire_center));
-        // The distance from the point to the line containing the wire.
-        const distance = crossProduct(circuit.wires[i].direction, from_center_to_point).length();
-        particles[j].avg_distance += distance;
-    }
-
-    particles[j].avg_distance /= size;
-}
-
 function calcMagneticFieldFromLine(particles, j, circuit) {
-    const x = particles[j].mesh.position.x;
-    const y = particles[j].mesh.position.y;
-    const z = particles[j].mesh.position.z;
     const k = Math.pow(10, -7);         // Coefficient = mu_0 / (4 * pi)
+    const avg_dist_flag = !particles[j].avg_distance;
 
 
     let B = new THREE.Vector3(0, 0, 0);
     const size = circuit.wires.length;
     for (let i = 0; i < size; ++i) {
         // Get the direction of B.
-        const wire_x = circuit.wires[i].mesh.position.x;
-        const wire_y = circuit.wires[i].mesh.position.y;
-        const wire_z = circuit.wires[i].mesh.position.z;
-        const half_wire_len = circuit.wires[i].length / 2;
-        const to_wire_center = Object.freeze(new THREE.Vector3(wire_x, wire_y, wire_z));
-        const to_point = Object.freeze(new THREE.Vector3(x, y, z));
+        const to_wire_center = Object.freeze(new THREE.Vector3(
+            circuit.wires[i].mesh.position.x, circuit.wires[i].mesh.position.y, circuit.wires[i].mesh.position.z
+        ));
+        const to_point = Object.freeze(new THREE.Vector3(
+            particles[j].mesh.position.x, particles[j].mesh.position.y, particles[j].mesh.position.z
+        ));
 
         const from_center_to_point = Object.freeze(Subtract(to_point, to_wire_center));
         const cur_B_dir = Object.freeze(crossProduct(circuit.wires[i].direction, from_center_to_point).normalize());
 
         // Get the value of B.
-        const to_wire_end1 = Object.freeze(addScaledVector(to_wire_center, circuit.wires[i].direction, half_wire_len));
-        const to_wire_end2 = Object.freeze(subtractScaledVector(to_wire_center, circuit.wires[i].direction, half_wire_len));
+        const to_wire_end1 = Object.freeze(addScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2));
+        const to_wire_end2 = Object.freeze(subtractScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2));
         const from_end1_to_point = Object.freeze(Subtract(to_point, to_wire_end1));
         const from_end2_to_point = Object.freeze(Subtract(to_point, to_wire_end2));
         const cos1 = dotProduct(from_end1_to_point, Negate(circuit.wires[i].direction)) / from_end1_to_point.length();
@@ -90,10 +65,12 @@ function calcMagneticFieldFromLine(particles, j, circuit) {
         const distance = crossProduct(circuit.wires[i].direction, from_center_to_point).length();
 
         const cur_B_val = k * config['mu'] * config['current'] / distance * (cos1 - cos2);
+        particles[j].avg_distance += avg_dist_flag ? distance : 0;
 
-        // Use superposition principle.
+        // Use the superposition principle.
         B.addScaledVector(cur_B_dir, cur_B_val);
     }
+    particles[j].avg_distance /= avg_dist_flag ? size : 1;
 
     return B;
 }
@@ -128,7 +105,6 @@ function moveParticles(circuit, particles, step_time, scene) {
                     scene
                 )
             );
-            getAvgDistance(particles, size - 1, circuit);
         }
 
         const instant_velocity = calcVelocity(B);
@@ -138,10 +114,9 @@ function moveParticles(circuit, particles, step_time, scene) {
         particles[i].time_lived += step_time;
 
         // Testing
+        // console.log(B.length());
         // console.log(instant_velocity);
         // console.log(particles[i].mesh.position.x, particles[i].mesh.position.y, particles[i].mesh.position.z);
-        // console.log(particles[i].time_lived);
-        // console.log(particles[0].avg_distance);
     }
     // console.log(particles[0].time_lived);
     // console.log(particles[0].avg_distance);
