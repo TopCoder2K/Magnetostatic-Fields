@@ -51,16 +51,20 @@ function calcMagneticFieldFromLine(particles, j, circuit) {
             particles[j].mesh.position.x, particles[j].mesh.position.y, particles[j].mesh.position.z
         ));
 
-        const from_center_to_point = Object.freeze(Subtract(to_point, to_wire_center));
+        const from_center_to_point = Object.freeze(subtract(to_point, to_wire_center));
         const cur_B_dir = Object.freeze(crossProduct(circuit.wires[i].direction, from_center_to_point).normalize());
 
         // Get the value of B.
-        const to_wire_end1 = Object.freeze(addScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2));
-        const to_wire_end2 = Object.freeze(subtractScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2));
-        const from_end1_to_point = Object.freeze(Subtract(to_point, to_wire_end1));
-        const from_end2_to_point = Object.freeze(Subtract(to_point, to_wire_end2));
-        const cos1 = dotProduct(from_end1_to_point, Negate(circuit.wires[i].direction)) / from_end1_to_point.length();
-        const cos2 = dotProduct(from_end2_to_point, Negate(circuit.wires[i].direction)) / from_end2_to_point.length();
+        const to_wire_end1 = Object.freeze(
+            addScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2)
+        );
+        const to_wire_end2 = Object.freeze(
+            subtractScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2)
+        );
+        const from_end1_to_point = Object.freeze(subtract(to_point, to_wire_end1));
+        const from_end2_to_point = Object.freeze(subtract(to_point, to_wire_end2));
+        const cos1 = dotProduct(from_end1_to_point, negate(circuit.wires[i].direction)) / from_end1_to_point.length();
+        const cos2 = dotProduct(from_end2_to_point, negate(circuit.wires[i].direction)) / from_end2_to_point.length();
         // The distance from the point to the line containing the wire.
         const distance = crossProduct(circuit.wires[i].direction, from_center_to_point).length();
 
