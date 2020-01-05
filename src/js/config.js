@@ -1,4 +1,4 @@
-const config = {
+export const config = {
     current: 1,
     mu: 1,
     step_time: 0.001,

@@ -1,12 +1,17 @@
+import * as THREE from 'three';
+import * as dat from 'dat.gui';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import {moveParticles, generateParticles} from "./particles";
+import Circuit from "./Circuit";
+import {config} from "./config";
+
+
 window.onload = function () {
     const canvas = document.getElementById('canvas');
     let width = window.innerWidth;
     let height = window.innerHeight;
     canvas.setAttribute('width', width);
     canvas.setAttribute('height', height);
-
-
-
 
     const renderer = new THREE.WebGLRenderer({canvas: canvas});
     renderer.setClearColor(0x000000);
@@ -23,7 +28,7 @@ window.onload = function () {
     camera.position.set(0, 0, 1000);
 
 
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    let controls = new OrbitControls(camera, renderer.domElement);
 
     const light = new THREE.AmbientLight(0xffffff);
     scene.add(light);
