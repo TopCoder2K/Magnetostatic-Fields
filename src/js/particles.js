@@ -1,3 +1,87 @@
+import * as THREE from 'three';
+import {Scene, Vector3} from 'three';
+
+/**
+ * As library functions are bad, rewrite them.
+ * -u
+ * @param {Vector3} u
+ */
+function negate(u) {
+    return u.clone().negate()
+}
+
+/**
+ * v + u
+ * @param {Vector3} v
+ * @param {Vector3} u
+ * @returns {Vector3|*}
+ */
+function add(v, u) {
+    return v.clone().add(u)
+}
+
+/**
+ *  v - u
+ * @param {Vector3} v
+ * @param {Vector3} u
+ * @returns {Vector3|*}
+ */
+function subtract(v, u) {
+    return v.clone().sub(u)
+}
+
+/**
+ * u x v
+ * @param {Vector3}v
+ * @param {Vector3}u
+ * @returns {Vector3}
+ */
+function crossProduct(v, u) {
+    return v.clone().cross(u)
+}
+
+/**
+ *  v + u * k
+ * @param {Vector3} v
+ * @param {Vector3} u
+ * @param {Number} k
+ * @returns {Vector3}
+ */
+function addScaledVector(v, u, k) {
+    let scaled_u = new Vector3(0, 0, 0);
+    scaled_u.copy(u);
+    scaled_u.multiplyScalar(k);
+
+    return add(v, scaled_u);
+}
+
+/**
+ * v - u * k
+ * @param {Vector3} v
+ * @param {Vector3} u
+ * @param {Number} k
+ * @returns {Vector3}
+ */
+function subtractScaledVector(v, u, k) {
+    let scaled_u = new Vector3(0, 0, 0);
+    scaled_u.copy(u);
+    scaled_u.multiplyScalar(k);
+
+    return subtract(v, scaled_u);
+}
+
+/**
+ * v * u
+ * @param {Vector3} v
+ * @param {Vector3} u
+ * @returns {number}
+ */
+function dotProduct(v, u) {
+    let copied_v = new Vector3(0, 0, 0);
+    copied_v.copy(v);
+    return copied_v.dot(u);
+}
+
 function ParticleMesh(x, y, z, scene) {
     const particle = new THREE.SphereGeometry(1);
     const material = new THREE.MeshBasicMaterial({color: 0xffffff});
@@ -18,7 +102,13 @@ function getRandomArbitrary(min, max) {
 }
 
 // Generate random positions for particles.
-function generateParticles(num, scene) {
+/**
+ *
+ * @param {Number} num
+ * @param {Scene} scene
+ * @returns {[ParticleMesh]}
+ */
+export function generateParticles(num, scene) {
     let particles = [];
     for (let i = 0; i < num; ++i) {
         particles.push(
@@ -32,9 +122,13 @@ function generateParticles(num, scene) {
     return particles;
 }
 
-
-
-
+/**
+ *
+ * @param {[ParticleMesh]} particles
+ * @param {Number} j
+ * @param {Circuit} circuit
+ * @returns {Vector3}
+ */
 function calcMagneticFieldFromLine(particles, j, circuit) {
     const k = Math.pow(10, -7);         // Coefficient = mu_0 / (4 * pi)
     const avg_dist_flag = !particles[j].avg_distance;
@@ -44,25 +138,17 @@ function calcMagneticFieldFromLine(particles, j, circuit) {
     const size = circuit.wires.length;
     for (let i = 0; i < size; ++i) {
         // Get the direction of B.
-        const to_wire_center = Object.freeze(new THREE.Vector3(
-            circuit.wires[i].mesh.position.x, circuit.wires[i].mesh.position.y, circuit.wires[i].mesh.position.z
-        ));
-        const to_point = Object.freeze(new THREE.Vector3(
-            particles[j].mesh.position.x, particles[j].mesh.position.y, particles[j].mesh.position.z
-        ));
+        const to_wire_center = circuit.wires[i].mesh.position;
+        const to_point = particles[j].mesh.position;
 
-        const from_center_to_point = Object.freeze(subtract(to_point, to_wire_center));
-        const cur_B_dir = Object.freeze(crossProduct(circuit.wires[i].direction, from_center_to_point).normalize());
+        const from_center_to_point = subtract(to_point, to_wire_center);
+        const cur_B_dir = crossProduct(circuit.wires[i].direction, from_center_to_point).normalize();
 
         // Get the value of B.
-        const to_wire_end1 = Object.freeze(
-            addScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2)
-        );
-        const to_wire_end2 = Object.freeze(
-            subtractScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2)
-        );
-        const from_end1_to_point = Object.freeze(subtract(to_point, to_wire_end1));
-        const from_end2_to_point = Object.freeze(subtract(to_point, to_wire_end2));
+        const to_wire_end1 = addScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2);
+        const to_wire_end2 = subtractScaledVector(to_wire_center, circuit.wires[i].direction, circuit.wires[i].length / 2);
+        const from_end1_to_point = subtract(to_point, to_wire_end1);
+        const from_end2_to_point = subtract(to_point, to_wire_end2);
         const cos1 = dotProduct(from_end1_to_point, negate(circuit.wires[i].direction)) / from_end1_to_point.length();
         const cos2 = dotProduct(from_end2_to_point, negate(circuit.wires[i].direction)) / from_end2_to_point.length();
         // The distance from the point to the line containing the wire.
@@ -88,9 +174,15 @@ function calcVelocity(B) {
     return copied_B.divideScalar(config['quasi_mass']);
 }
 
-// Calculates vector B at a point in space and acceleration, acting on the particle at that point.
-// After that changes the particle velocity.
-function moveParticles(circuit, particles, step_time, scene) {
+/**
+ *  Calculates vector B at a point in space and acceleration, acting on the particle at that point.
+ * After that changes the particle velocity.
+ * @param {Circuit} circuit
+ * @param {[ParticleMesh]} particles
+ * @param {Number} step_time
+ * @param {Scene} scene
+ */
+export function moveParticles(circuit, particles, step_time, scene) {
     const size = particles.length;
     for (let i = 0; i < size; ++i) {
         const B = calcMagneticFieldFromLine(particles, i, circuit);

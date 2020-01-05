@@ -1,0 +1,28 @@
+{
+  "name": "magnetostatic-fields",
+  "version": "1.0.0",
+  "description": "To start the visualisation run **index.html**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TopCoder2K/Magnetostatic-Fields.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TopCoder2K/Magnetostatic-Fields/issues"
+  },
+  "homepage": "https://github.com/TopCoder2K/Magnetostatic-Fields#readme",
+  "dependencies": {
+    "dat.gui": "^0.7.6",
+    "three": "^0.112.1"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}
