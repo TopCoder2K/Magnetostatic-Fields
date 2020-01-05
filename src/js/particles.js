@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import {Scene, Vector3} from 'three';
 
 /**
- * As library functions are bad, rewrite them.
  * -u
  * @param {Vector3} u
  */
@@ -48,11 +47,7 @@ function crossProduct(v, u) {
  * @returns {Vector3}
  */
 function addScaledVector(v, u, k) {
-    let scaled_u = new Vector3(0, 0, 0);
-    scaled_u.copy(u);
-    scaled_u.multiplyScalar(k);
-
-    return add(v, scaled_u);
+    return add(v, u.clone().multiplyScalar(k));
 }
 
 /**
@@ -63,25 +58,27 @@ function addScaledVector(v, u, k) {
  * @returns {Vector3}
  */
 function subtractScaledVector(v, u, k) {
-    let scaled_u = new Vector3(0, 0, 0);
-    scaled_u.copy(u);
-    scaled_u.multiplyScalar(k);
-
-    return subtract(v, scaled_u);
+    return subtract(v, u.clone().multiplyScalar(k));
 }
 
 /**
- * v * u
+ *
  * @param {Vector3} v
  * @param {Vector3} u
- * @returns {number}
+ * @returns {Number}
  */
 function dotProduct(v, u) {
-    let copied_v = new Vector3(0, 0, 0);
-    copied_v.copy(v);
-    return copied_v.dot(u);
+    return v.clone().dot(u);
 }
 
+/**
+ *
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Scene} scene
+ * @constructor
+ */
 function ParticleMesh(x, y, z, scene) {
     const particle = new THREE.SphereGeometry(1);
     const material = new THREE.MeshBasicMaterial({color: 0xffffff});
@@ -97,13 +94,18 @@ function ParticleMesh(x, y, z, scene) {
     scene.add(this.mesh);
 }
 
+/**
+ *
+ * @param {Number} min
+ * @param {Number} max
+ * @returns {Number}
+ */
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-// Generate random positions for particles.
 /**
- *
+ * Generate random positions for particles.
  * @param {Number} num
  * @param {Scene} scene
  * @returns {[ParticleMesh]}
@@ -165,17 +167,18 @@ function calcMagneticFieldFromLine(particles, j, circuit) {
     return B;
 }
 
-// As our particles represent magnetic field, B serves as force acting on them.
-// So, it's important to find "good mass" for the graphic representing.
+/**
+ * As our particles represent magnetic field, B serves as force acting on them.
+ * So, it's important to find "good mass" for the graphic representing.
+ * @param {Vector3} B
+ * @returns {Vector3}
+ */
 function calcVelocity(B) {
-    let copied_B = new THREE.Vector3(0, 0, 0);
-    copied_B.copy(B);
-
-    return copied_B.divideScalar(config['quasi_mass']);
+    return B.clone().divideScalar(config['quasi_mass']);
 }
 
 /**
- *  Calculates vector B at a point in space and acceleration, acting on the particle at that point.
+ * Calculates vector B at a point in space and acceleration, acting on the particle at that point.
  * After that changes the particle velocity.
  * @param {Circuit} circuit
  * @param {[ParticleMesh]} particles
