@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import {Scene, Vector3} from 'three';
-import {config} from "./config";
 
 /**
  * As library functions are bad, rewrite them.

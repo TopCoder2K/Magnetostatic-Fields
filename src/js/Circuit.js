@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import {config} from "./config";
 
 // A primitive wire.
 function CurrentLine(scene, height) {

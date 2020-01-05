@@ -3,7 +3,6 @@ import * as dat from 'dat.gui';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 import {moveParticles, generateParticles} from "./particles";
 import Circuit from "./Circuit";
-import {config} from "./config";
 
 
 window.onload = function () {
