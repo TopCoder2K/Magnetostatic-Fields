@@ -29,7 +29,6 @@ function CurrentLine(scene, height) {
  * @returns {CurrentLine}
  */
 function lineCircuit(current_line, x, y, z, angle_x, angle_y, angle_z) {
-    console.log(angle_x, angle_y, angle_z);
     angle_x = Object.is(undefined, angle_x) ? 0 : angle_x;
     angle_y = Object.is(undefined, angle_y) ? 0 : angle_y;
     angle_z = Object.is(undefined, angle_z) ? 0 : angle_z;
@@ -61,7 +60,6 @@ function lineCircuit(current_line, x, y, z, angle_x, angle_y, angle_z) {
  * @param {Boolean} reversed_current_flag
  */
 function angleCircuit(wires, scene, length, x, y, z, half_around_z_flag, quarter_around_y_flag, reversed_current_flag) {
-    const radius = Math.sqrt(x * x + y * y);
     wires.push(lineCircuit(
         new CurrentLine(scene, length),
         x - length * half_around_z_flag + length * half_around_z_flag * quarter_around_y_flag,
@@ -164,12 +162,12 @@ export default class Circuit {
 
             case 'ring':
                 // We will approximate ring by 72 vertex polygon.
-                ringCircuit(this.wires, scene, 100, 5, 50);
+                ringCircuit(this.wires, scene, 100, 6, 50);
                 break;
 
             case 'inductor':
                 for (let i = 0; i < 8; ++i) {
-                    ringCircuit(this.wires, scene, 100, 20,i * 20);
+                    ringCircuit(this.wires, scene, 100, 10,i * 20);
                 }
                 break;
 
@@ -190,10 +188,10 @@ export default class Circuit {
                 break;
             case 'double_inductor':
                 for (let i = 0; i < 6; ++i) {
-                    ringCircuit(this.wires, scene, 100, 30,i * 20);
+                    ringCircuit(this.wires, scene, 100, 20,i * 20);
                 }
                 for (let i = 0; i < 6; ++i) {
-                    ringCircuit(this.wires, scene, 50, 30,i * 20);
+                    ringCircuit(this.wires, scene, 50, 20,i * 20);
                 }
                 this.wires.push(
                     lineCircuit(new CurrentLine(scene, 100), 0, 0, 50, 90 / 180 * Math.PI, 0, 0)
