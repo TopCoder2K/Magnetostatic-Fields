@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 
-// A primitive wire.
+/**
+ * A primitive wire.
+ * @param {Scene} scene
+ * @param {Number} height
+ * @constructor
+ */
 function CurrentLine(scene, height) {
     const geometry = new THREE.CylinderGeometry(3, 3, height);
     const material = new THREE.MeshBasicMaterial({color: config['wire_color']});
@@ -12,9 +17,18 @@ function CurrentLine(scene, height) {
     scene.add(this.mesh);
 }
 
-// Sets up a wire position.
+/**
+ * Sets up a wire position.
+ * @param {CurrentLine} current_line
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Number} angle_x
+ * @param {Number} angle_y
+ * @param {Number} angle_z
+ * @returns {CurrentLine}
+ */
 function lineCircuit(current_line, x, y, z, angle_x, angle_y, angle_z) {
-    console.log(angle_x, angle_y, angle_z);
     angle_x = Object.is(undefined, angle_x) ? 0 : angle_x;
     angle_y = Object.is(undefined, angle_y) ? 0 : angle_y;
     angle_z = Object.is(undefined, angle_z) ? 0 : angle_z;
@@ -33,9 +47,20 @@ function lineCircuit(current_line, x, y, z, angle_x, angle_y, angle_z) {
     return current_line;
 }
 
+/**
+ *
+ * @param {[CurrentLine]} wires
+ * @param {Scene} scene
+ * @param {Number} length
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Boolean} half_around_z_flag
+ * @param {Boolean} quarter_around_y_flag
+ * @param {Boolean} reversed_current_flag
+ */
 function angleCircuit(wires, scene, length, x, y, z, half_around_z_flag, quarter_around_y_flag, reversed_current_flag) {
-    const radius = Math.sqrt(x * x + y * y);
-    wires.push(Object.freeze(lineCircuit(
+    wires.push(lineCircuit(
         new CurrentLine(scene, length),
         x - length * half_around_z_flag + length * half_around_z_flag * quarter_around_y_flag,
         y,
@@ -43,8 +68,8 @@ function angleCircuit(wires, scene, length, x, y, z, half_around_z_flag, quarter
         0,
         0,
         Math.PI * half_around_z_flag + Math.PI * reversed_current_flag
-    )));
-    wires.push(Object.freeze(lineCircuit(
+    ));
+    wires.push(lineCircuit(
         new CurrentLine(scene, length),
         x - length / 2 + length / 2 * quarter_around_y_flag,
         y + length / 2 - length * half_around_z_flag,
@@ -52,16 +77,34 @@ function angleCircuit(wires, scene, length, x, y, z, half_around_z_flag, quarter
         0,
         90 / 180 * Math.PI * quarter_around_y_flag + Math.PI * reversed_current_flag,
         90 / 180 * Math.PI + Math.PI * half_around_z_flag
-    )));
+    ));
 }
 
+/**
+ *
+ * @param {[CurrentLine]} wires
+ * @param {Scene} scene
+ * @param {Number} length
+ * @param {Number} x
+ * @param {Number} y
+ * @param {Number} z
+ * @param {Boolean} quarter_around_y_flag
+ * @param {Boolean} reversed_current_flag
+ */
 function squareCircuit(wires, scene, length, x, y, z, quarter_around_y_flag, reversed_current_flag) {
     angleCircuit(wires, scene, length, x, y, z, false, quarter_around_y_flag, reversed_current_flag);
     angleCircuit(wires, scene, length, x, y, z, true, quarter_around_y_flag, reversed_current_flag);
 }
 
-// Makes a ring from cylinders.
-// Angle in degrees!
+/**
+ * Makes a ring from cylinders.
+ * Angle is in degrees!
+ * @param wires
+ * @param scene
+ * @param radius
+ * @param step_angle
+ * @param z
+ */
 function ringCircuit(wires, scene, radius, step_angle, z) {
     z = Object.is(undefined, z) ? 0 : z;
     const angle = step_angle / 180 * Math.PI;
@@ -71,7 +114,7 @@ function ringCircuit(wires, scene, radius, step_angle, z) {
         const x = radius * Math.cos(i * angle);
         const y = radius * Math.sin(i * angle);
         wires.push(
-            Object.freeze(lineCircuit(new CurrentLine(scene, len), x, y, z, 0, 0, i * angle))
+            lineCircuit(new CurrentLine(scene, len), x, y, z, 0, 0, i * angle)
         );
     }
 }
@@ -87,7 +130,7 @@ export default class Circuit {
         switch(circuit_name) {
             case 'line':
                 this.wires.push(
-                        Object.freeze(lineCircuit(new CurrentLine(scene, 400)))
+                        lineCircuit(new CurrentLine(scene, 400))
                 );
                 break;
 
@@ -104,27 +147,27 @@ export default class Circuit {
                 squareCircuit(this.wires, scene, 200, 100, 0, 0, false, false);
                 squareCircuit(this.wires, scene, 200, 100, 0, 200, false, false);
                 this.wires.push(
-                    Object.freeze(lineCircuit(new CurrentLine(scene, 200), 100, 100, 100, 90 / 180 * Math.PI, 0, 0))
+                    lineCircuit(new CurrentLine(scene, 200), 100, 100, 100, 90 / 180 * Math.PI, 0, 0)
                 );
                 this.wires.push(
-                    Object.freeze(lineCircuit(new CurrentLine(scene, 200), 100, -100, 100, 90 / 180 * Math.PI, 0, 0))
+                    lineCircuit(new CurrentLine(scene, 200), 100, -100, 100, 90 / 180 * Math.PI, 0, 0)
                 );
                 this.wires.push(
-                    Object.freeze(lineCircuit(new CurrentLine(scene, 200), -100, 100, 100, 90 / 180 * Math.PI, 0, 0))
+                    lineCircuit(new CurrentLine(scene, 200), -100, 100, 100, 90 / 180 * Math.PI, 0, 0)
                 );
                 this.wires.push(
-                    Object.freeze(lineCircuit(new CurrentLine(scene, 200), -100, -100, 100, 90 / 180 * Math.PI, 0, 0))
+                    lineCircuit(new CurrentLine(scene, 200), -100, -100, 100, 90 / 180 * Math.PI, 0, 0)
                 );
                 break;
 
             case 'ring':
                 // We will approximate ring by 72 vertex polygon.
-                ringCircuit(this.wires, scene, 100, 5, 50);
+                ringCircuit(this.wires, scene, 100, 6, 50);
                 break;
 
             case 'inductor':
                 for (let i = 0; i < 8; ++i) {
-                    ringCircuit(this.wires, scene, 100, 20,i * 20);
+                    ringCircuit(this.wires, scene, 100, 10,i * 20);
                 }
                 break;
 
@@ -145,13 +188,13 @@ export default class Circuit {
                 break;
             case 'double_inductor':
                 for (let i = 0; i < 6; ++i) {
-                    ringCircuit(this.wires, scene, 100, 30,i * 20);
+                    ringCircuit(this.wires, scene, 100, 20,i * 20);
                 }
                 for (let i = 0; i < 6; ++i) {
-                    ringCircuit(this.wires, scene, 50, 30,i * 20);
+                    ringCircuit(this.wires, scene, 50, 20,i * 20);
                 }
                 this.wires.push(
-                    Object.freeze(lineCircuit(new CurrentLine(scene, 100), 0, 0, 50, 90 / 180 * Math.PI, 0, 0))
+                    lineCircuit(new CurrentLine(scene, 100), 0, 0, 50, 90 / 180 * Math.PI, 0, 0)
                 );
                 break;
 
